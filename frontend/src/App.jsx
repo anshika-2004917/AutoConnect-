@@ -4,7 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import AIChat from "./components/AIChat";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -39,6 +39,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
+      <AIChat />
     </div>
   );
 }

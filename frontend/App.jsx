@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AIChat from "./components/AIChat";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -14,6 +15,7 @@ import DriverDashboard from "./pages/DriverDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import "./App.css";
+
 
 function App() {
   const { loading } = useAuth();
@@ -39,6 +41,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
+      <AIChat />
     </div>
   );
 }

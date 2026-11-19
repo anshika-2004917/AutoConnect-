@@ -19,7 +19,7 @@ from api_public import public_bp
 from auth import ensure_admin
 from db import close_db, init_db
 from utils import error
-
+from api_ai import ai_bp
 BASE_DIR = Path(__file__).resolve().parent
 
 
@@ -58,7 +58,7 @@ def create_app(overrides=None):
             if problem and "already" not in problem:
                 print("WARNING: admin account not created:", problem)
 
-    for blueprint in (public_bp, auth_bp, driver_bp, admin_bp):
+    for blueprint in (public_bp, auth_bp, driver_bp, admin_bp, ai_bp):
         app.register_blueprint(blueprint, url_prefix="/api")
 
     # ----- CORS: Fixed for any frontend port -----
