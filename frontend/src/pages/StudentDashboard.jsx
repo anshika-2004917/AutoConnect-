@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -7,32 +8,57 @@ import { getGreeting } from "../utils/helpers";
 
 export default function StudentDashboard() {
   const { user } = useAuth();
+
   const [routes, setRoutes] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // NEW: Available drivers
+  const [drivers, setDrivers] = useState([]);
+  const [driversLoading, setDriversLoading] = useState(true);
+
   useEffect(() => {
     setLoading(true);
+
     const timer = setTimeout(() => {
       API.get(`/routes?q=${search}`)
         .then((res) => setRoutes(res.data.routes))
         .catch(() => {})
         .finally(() => setLoading(false));
     }, 300);
+
     return () => clearTimeout(timer);
   }, [search]);
 
+  // NEW: Fetch available drivers
+  useEffect(() => {
+    API.get("/drivers/available")
+      .then((res) => setDrivers(res.data.drivers || []))
+      .catch((err) => {
+        console.error("Could not load available drivers:", err);
+      })
+      .finally(() => setDriversLoading(false));
+  }, []);
+
   return (
     <div className="dash-page">
+
       {/* Welcome Banner */}
       <div className="dash-banner student-banner">
         <div className="banner-text">
           <p className="banner-greeting">{getGreeting()},</p>
-          <h1 className="banner-name">{user?.name?.split(" ")[0]}! 🎓</h1>
-          <p className="banner-desc">Find routes, check live autos, and plan your commute.</p>
+          <h1 className="banner-name">
+            {user?.name?.split(" ")[0]}! 🎓
+          </h1>
+          <p className="banner-desc">
+            Find routes, check live autos, and plan your commute.
+          </p>
         </div>
+
         <div className="banner-actions">
-          <Link to="/profile" className="btn banner-btn-outline">My Profile</Link>
+          <Link to="/profile" className="btn banner-btn-outline">
+            My Profile
+          </Link>
         </div>
       </div>
 
@@ -45,6 +71,7 @@ export default function StudentDashboard() {
             <span className="qstat-label">Routes Available</span>
           </div>
         </div>
+
         <div className="qstat">
           <span className="qstat-icon">🔍</span>
           <div>
@@ -52,6 +79,7 @@ export default function StudentDashboard() {
             <span className="qstat-label">Search & Track</span>
           </div>
         </div>
+
         <div className="qstat">
           <span className="qstat-icon">📍</span>
           <div>
@@ -61,23 +89,73 @@ export default function StudentDashboard() {
         </div>
       </div>
 
+      {/* NEW: Available Drivers */}
+      <div className="dash-section-header">
+        <h2>Available Drivers</h2>
+        <span className="result-count">
+          {driversLoading ? "..." : `${drivers.length} available`}
+        </span>
+      </div>
+
+      {driversLoading ? (
+        <div className="loading-text">
+          <div className="mini-spinner"></div>
+          Loading available drivers...
+        </div>
+      ) : drivers.length === 0 ? (
+        <div className="empty-dash">
+          <div className="empty-icon">🛺</div>
+          <h3>No drivers available</h3>
+          <p>Please check again later.</p>
+        </div>
+      ) : (
+        <div className="grid">
+          {drivers.map((driver) => (
+            <div className="driver-card" key={driver.driver_id}>
+              <div className="driver-card-top">
+                <span className="driver-icon">🛺</span>
+                <span className="driver-status">
+                  ● Available
+                </span>
+              </div>
+
+              <h3>Driver ID: {driver.driver_id}</h3>
+
+              <p className="driver-auto">
+                Auto Number: {driver.auto_number}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Search */}
       <div className="dash-search">
         <span className="dash-search-icon">🔍</span>
+
         <input
           type="text"
           placeholder="Search routes by name, location, or ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+
         {search && (
-          <button className="clear-btn" onClick={() => setSearch("")}>✕</button>
+          <button
+            className="clear-btn"
+            onClick={() => setSearch("")}
+          >
+            ✕
+          </button>
         )}
       </div>
 
       {/* Routes */}
       <div className="dash-section-header">
-        <h2>{search ? `Results for "${search}"` : "All Routes"}</h2>
+        <h2>
+          {search ? `Results for "${search}"` : "All Routes"}
+        </h2>
+
         <span className="result-count">
           {loading ? "..." : `${routes.length} found`}
         </span>
@@ -113,10 +191,12 @@ export default function StudentDashboard() {
           position: relative;
           overflow: hidden;
         }
+
         .student-banner {
           background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #6366f1 100%);
           color: #fff;
         }
+
         .dash-banner::after {
           content: '';
           position: absolute;
@@ -126,22 +206,26 @@ export default function StudentDashboard() {
           top: -100px;
           right: -50px;
         }
+
         .banner-greeting {
           font-size: 15px;
           opacity: 0.8;
           font-weight: 500;
           margin-bottom: 4px;
         }
+
         .banner-name {
           font-size: 32px;
           font-weight: 900;
           letter-spacing: -0.5px;
           margin-bottom: 8px;
         }
+
         .banner-desc {
           font-size: 15px;
           opacity: 0.75;
         }
+
         .banner-btn-outline {
           background: rgba(255,255,255,0.15) !important;
           color: #fff !important;
@@ -150,15 +234,18 @@ export default function StudentDashboard() {
           position: relative;
           z-index: 1;
         }
+
         .banner-btn-outline:hover {
           background: rgba(255,255,255,0.25) !important;
         }
+
         .quick-stats {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 16px;
           margin-bottom: 28px;
         }
+
         .qstat {
           background: #fff;
           border-radius: 14px;
@@ -169,18 +256,63 @@ export default function StudentDashboard() {
           border: 1px solid #f1f5f9;
           box-shadow: 0 2px 4px rgba(0,0,0,0.03);
         }
+
         .qstat-icon { font-size: 28px; }
+
         .qstat-num {
           display: block;
           font-size: 22px;
           font-weight: 800;
           color: #0f172a;
         }
+
         .qstat-label {
           font-size: 12px;
           color: #94a3b8;
           font-weight: 500;
         }
+
+        /* NEW: Driver cards */
+        .driver-card {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          padding: 20px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .driver-card-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+
+        .driver-icon {
+          font-size: 28px;
+        }
+
+        .driver-status {
+          color: #16a34a;
+          background: #dcfce7;
+          padding: 6px 10px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 700;
+        }
+
+        .driver-card h3 {
+          font-size: 17px;
+          color: #0f172a;
+          font-weight: 800;
+          margin-bottom: 8px;
+        }
+
+        .driver-auto {
+          color: #64748b;
+          font-size: 14px;
+        }
+
         .dash-search {
           display: flex;
           align-items: center;
@@ -188,14 +320,20 @@ export default function StudentDashboard() {
           border: 2px solid #e2e8f0;
           border-radius: 14px;
           padding: 4px 4px 4px 18px;
-          margin-bottom: 28px;
+          margin: 28px 0;
           transition: border-color 0.2s;
         }
+
         .dash-search:focus-within {
           border-color: #2563eb;
           box-shadow: 0 0 0 4px rgba(37,99,235,0.1);
         }
-        .dash-search-icon { font-size: 18px; margin-right: 10px; }
+
+        .dash-search-icon {
+          font-size: 18px;
+          margin-right: 10px;
+        }
+
         .dash-search input {
           flex: 1;
           border: none;
@@ -204,6 +342,7 @@ export default function StudentDashboard() {
           padding: 14px 0;
           background: transparent;
         }
+
         .clear-btn {
           background: #f1f5f9;
           border: none;
@@ -215,18 +354,24 @@ export default function StudentDashboard() {
           cursor: pointer;
           margin-right: 4px;
         }
-        .clear-btn:hover { background: #e2e8f0; }
+
+        .clear-btn:hover {
+          background: #e2e8f0;
+        }
+
         .dash-section-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 20px;
         }
+
         .dash-section-header h2 {
           font-size: 20px;
           font-weight: 800;
           color: #0f172a;
         }
+
         .result-count {
           font-size: 13px;
           color: #94a3b8;
@@ -235,6 +380,7 @@ export default function StudentDashboard() {
           padding: 4px 12px;
           border-radius: 20px;
         }
+
         .empty-dash {
           text-align: center;
           padding: 60px 20px;
@@ -242,21 +388,47 @@ export default function StudentDashboard() {
           border-radius: 16px;
           border: 2px dashed #e2e8f0;
         }
-        .empty-dash .empty-icon { font-size: 48px; margin-bottom: 12px; }
-        .empty-dash h3 { font-size: 18px; color: #334155; margin-bottom: 4px; }
-        .empty-dash p { color: #94a3b8; font-size: 14px; }
+
+        .empty-dash .empty-icon {
+          font-size: 48px;
+          margin-bottom: 12px;
+        }
+
+        .empty-dash h3 {
+          font-size: 18px;
+          color: #334155;
+          margin-bottom: 4px;
+        }
+
+        .empty-dash p {
+          color: #94a3b8;
+          font-size: 14px;
+        }
+
         .mini-spinner {
-          width: 24px; height: 24px;
+          width: 24px;
+          height: 24px;
           border: 3px solid #e2e8f0;
           border-top-color: #2563eb;
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
           margin: 0 auto 12px;
         }
+
         @media (max-width: 640px) {
-          .dash-banner { flex-direction: column; gap: 20px; text-align: center; }
-          .quick-stats { grid-template-columns: 1fr; }
-          .banner-name { font-size: 26px; }
+          .dash-banner {
+            flex-direction: column;
+            gap: 20px;
+            text-align: center;
+          }
+
+          .quick-stats {
+            grid-template-columns: 1fr;
+          }
+
+          .banner-name {
+            font-size: 26px;
+          }
         }
       `}</style>
     </div>

@@ -1,4 +1,6 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+
+import { useEffect } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -15,6 +17,27 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import "./App.css";
 
+// Scroll to Available Routes section
+function ScrollToRoutes() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (
+      location.pathname === "/" &&
+      location.hash === "#available-routes"
+    ) {
+      setTimeout(() => {
+        document.getElementById("available-routes")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 400);
+    }
+  }, [location]);
+
+  return null;
+}
+
 function App() {
   const { loading } = useAuth();
 
@@ -23,6 +46,8 @@ function App() {
   return (
     <div className="app">
       <Navbar />
+      <ScrollToRoutes />
+
       <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -38,6 +63,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+
       <Footer />
       <AIChat />
     </div>

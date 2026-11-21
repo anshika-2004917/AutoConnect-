@@ -26,7 +26,9 @@ export default function Navbar() {
         </Link>
 
         <div className="nav-links">
-          <Link to="/" className="nav-link">Routes</Link>
+          <Link to="/#available-routes" className="nav-link">
+  Routes
+</Link>
           {dashboardLink()}
 
           {user ? (

@@ -96,7 +96,7 @@ export default function Home() {
       </section>
 
       {/* ROUTES GRID */}
-      <section className="routes-section">
+      <section id="available-routes" className="routes-section">
         <div className="section-header">
           <h2 className="section-title">
             {search ? `Results for "${search}"` : "Available Routes"}
